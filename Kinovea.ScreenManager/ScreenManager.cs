@@ -37,6 +37,9 @@ using Kinovea.ScreenManager.Languages;
 using Kinovea.Services;
 using Kinovea.Video;
 using Kinovea.Video.FFMpeg;
+using Kinovea.Force.BleForcePlates;
+using Kinovea.Force.UI.WinForms.Services;
+using Kinovea.Force;
 
 namespace Kinovea.ScreenManager
 {
@@ -74,6 +77,7 @@ namespace Kinovea.ScreenManager
         private bool launchLoadingInProgress;
         private List<string> camerasToDiscover = new List<string>();
         private AudioInputLevelMonitor audioInputLevelMonitor = new AudioInputLevelMonitor();
+        private ForcePlatesController forcePlateController = new ForcePlatesController();
         
         #region Menus
         
@@ -204,7 +208,16 @@ namespace Kinovea.ScreenManager
 
             playerScreens = screenList.Where(s => s is PlayerScreen).Select(s => s as PlayerScreen);
             captureScreens = screenList.Where(s => s is CaptureScreen).Select(s => s as CaptureScreen);
+
+            forcePlateController.ForceGraph = view.ForceGraph;
+
+            ForcePlateDeviceInfo leftDevice = new ForcePlateDeviceInfo { DeviceName = "FPI Forceplate Left", DeviceId = "03197e0f-fee2-4a0a-a12a-8bf696e4d4b7" };
+            ForcePlateDeviceInfo rightDevice = new ForcePlateDeviceInfo { DeviceName = "FPI Forceplate Right", DeviceId = "03197e0f-fee2-4a0a-a12a-8bf696e4d4b7" };
+            forcePlateController.SetDevices(leftDevice, rightDevice);
+            forcePlateController.StartDeviceConnections();
+            
         }
+            
 
         private void InitializeVideoFilters()
         {
@@ -785,6 +798,13 @@ namespace Kinovea.ScreenManager
         {
             AbstractScreen screen = sender as AbstractScreen;
             SetActiveScreen(screen);
+
+            PlayerScreen player = screen as PlayerScreen;
+            if (player != null)
+            {
+                forcePlateController.PlayerSelectionChanged(player.FilePath);
+            }
+            
         }
         private void Screen_DualCommandReceived(object sender, EventArgs<HotkeyCommand> e)
         {
@@ -850,12 +870,18 @@ namespace Kinovea.ScreenManager
             ResetSync();
             dualPlayer.CommitLaunchSettings();
             OrganizeMenus();
+
+            PlayerScreen playerScreen = sender as PlayerScreen;
+            forcePlateController.PlayerSelectionChanged(playerScreen.FilePath);
         }
         private void Player_SelectionChanged(object sender, EventArgs<bool> e)
         {
             if (launchLoadingInProgress)
                 return;
-            
+
+            PlayerScreen playerScreen = sender as PlayerScreen;
+            forcePlateController.PlayerSelectionChanged(playerScreen.FilePath);
+
             ResetSync();
             OrganizeMenus();
         }
@@ -979,7 +1005,15 @@ namespace Kinovea.ScreenManager
             UpdateStatusBar();
 
             for (int i = 0; i < screenList.Count; i++)
+            {
                 screenList[i].Identify(i);
+                PlayerScreen playerScreen = screenList[i] as PlayerScreen;
+                if (playerScreen != null)
+                {
+                    playerScreen.view.Synched = true;
+                }
+            }
+                
 
             if (captureScreens.Count() > 0 && audioInputLevelMonitor.Enabled)
             {
@@ -2606,8 +2640,8 @@ namespace Kinovea.ScreenManager
         /// </summary>
         private void ResetSync()
         {
-            foreach (PlayerScreen p in playerScreens)
-                p.Synched = false;
+            //foreach (PlayerScreen p in playerScreens)
+            //    p.Synched = false;
 
             if (view.CommonControlsVisible)
                 dualPlayer.ResetSync();
@@ -2615,9 +2649,22 @@ namespace Kinovea.ScreenManager
         public void AddPlayerScreen()
         {
             PlayerScreen screen = new PlayerScreen();
+            screen.Synched = true;
+            screen.ImageChanged += Screen_ImageChanged;
             screen.RefreshUICulture();
             AddScreen(screen);
         }
+
+        private CommonTimeline commonTimeLine = new CommonTimeline();
+        private void Screen_ImageChanged(object sender, EventArgs<Bitmap> e)
+        {
+            PlayerScreen player = sender as PlayerScreen;
+            
+            long milliSeconds = player.LocalTime / 1000;
+            
+            forcePlateController.GoToTime(milliSeconds);
+        }
+
         public void AddCaptureScreen()
         {
             
@@ -2626,7 +2673,23 @@ namespace Kinovea.ScreenManager
                 screen.SetShared(true);
 
             screen.RefreshUICulture();
+            if (screenList.Count == 0)
+            {
+                screen.RecordingStarted += Screen_RecordingStarted;
+                screen.RecordingStopped += Screen_RecordingStopped;
+            }
+            
             AddScreen(screen);
+        }
+
+        private void Screen_RecordingStopped(object sender, EventArgs<string> e)
+        {
+            forcePlateController.StopRecording(e.Value);
+        }
+
+        private void Screen_RecordingStarted(object sender, EventArgs e)
+        {
+            forcePlateController.StartRecording();
         }
 
         /// <summary>

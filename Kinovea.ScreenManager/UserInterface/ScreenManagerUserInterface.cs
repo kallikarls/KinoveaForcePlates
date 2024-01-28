@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Kinovea.Camera;
+using Kinovea.Force.UI.WinForms.Controls;
 using Kinovea.ScreenManager.Languages;
 using Kinovea.Services;
 
@@ -55,6 +56,9 @@ namespace Kinovea.ScreenManager
                 return cp;
             }
         }
+
+        public ForceGraphPairUserControl ForceGraph { get; set; }
+
         public bool Closing { get; set; }
         #endregion
 
@@ -72,6 +76,10 @@ namespace Kinovea.ScreenManager
             Dock = DockStyle.Fill;
             
             InitializeThumbnailsContainer();
+
+            ForceGraph = new ForceGraphPairUserControl();
+            ForceGraph.Dock = DockStyle.Fill;
+            splitContainer1.Panel2.Controls.Add(ForceGraph);
 
             thumbnailViewerContainer.BringToFront();
             pnlScreens.BringToFront();
@@ -123,6 +131,7 @@ namespace Kinovea.ScreenManager
                 splitScreens.Panel2.Controls.Clear();
                 
                 PrepareLeftScreen(screenList[0].UI);
+                
                 
                 if(screenList.Count == 2)
                     PrepareRightScreen(screenList[1].UI);

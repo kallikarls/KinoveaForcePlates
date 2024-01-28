@@ -50,7 +50,7 @@ namespace Kinovea.ScreenManager
         #region Events
         public event EventHandler<EventArgs<string>> CameraDiscoveryComplete;
         public event EventHandler RecordingStarted;
-        public event EventHandler RecordingStopped;
+        public event EventHandler<EventArgs<string>> RecordingStopped;
         #endregion
 
         #region Properties
@@ -1816,7 +1816,7 @@ namespace Kinovea.ScreenManager
             UpdateRecordingIndicator();
 
             if (RecordingStopped != null)
-                RecordingStopped(this, EventArgs.Empty);
+                RecordingStopped(this, new EventArgs<string>(finalFilename));
         }
 
         /// <summary>

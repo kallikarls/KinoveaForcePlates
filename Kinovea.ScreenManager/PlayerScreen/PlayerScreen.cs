@@ -291,9 +291,11 @@ namespace Kinovea.ScreenManager
         {
             get { return synched; }
             set 
-            { 
-                view.Synched = value;
-                synched = value;
+            {
+                view.Synched = true;
+                synched = true;
+                //view.Synched = value;
+                //synched = value;
             }
         }
         public long Position
