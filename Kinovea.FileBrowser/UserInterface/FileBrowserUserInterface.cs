@@ -47,6 +47,11 @@ namespace Kinovea.FileBrowser
     /// </summary>
     public partial class FileBrowserUserInterface : KinoveaControl
     {
+        #region Events
+        public static event EventHandler<RenamedEventArgs> VideoFileRenamed;
+        public static event EventHandler<FileSystemEventArgs> VideoFileDeleted;
+        #endregion
+
         #region Members
         private CShItem currentExptreeItem; // Current item in exptree tab.
         private CShItem currentShortcutItem; // Current item in shortcuts tab.
@@ -1155,11 +1160,13 @@ namespace Kinovea.FileBrowser
         
         private void fileWatcher_Renamed(object sender, RenamedEventArgs e)
         {
+            VideoFileRenamed?.Invoke(this, e);
             this.BeginInvoke((MethodInvoker)delegate { DoRefreshFileList(true); });
         }
 
         private void fileWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
+            VideoFileDeleted?.Invoke(this, e);
             this.BeginInvoke((MethodInvoker)delegate { DoRefreshFileList(true); });
         }
 

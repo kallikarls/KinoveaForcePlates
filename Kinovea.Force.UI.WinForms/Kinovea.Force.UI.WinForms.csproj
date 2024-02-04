@@ -113,6 +113,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\KPIGroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\ForceGraphPairUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -124,6 +127,12 @@
     </Compile>
     <Compile Include="Controls\ForceGraphUserControl.Designer.cs">
       <DependentUpon>ForceGraphUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SwingMetricUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SwingMetricUserControl.Designer.cs">
+      <DependentUpon>SwingMetricUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\VeriticalProgressBar.cs">
       <SubType>Component</SubType>
@@ -148,6 +157,9 @@
     <EmbeddedResource Include="Controls\ForceGraphUserControl.resx">
       <DependentUpon>ForceGraphUserControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SwingMetricUserControl.resx">
+      <DependentUpon>SwingMetricUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -163,9 +175,17 @@
       <Project>{E542BE10-29C2-4B0A-BF54-5FDC0C13F1FA}</Project>
       <Name>Kinovea.Force.BleForcePlates</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KinoVea.Force.GSPLink.SwingMetricsClient\KinoVea.Force.GSPLink.SwingMetricsClient.csproj">
+      <Project>{4a08dad3-b59d-4e17-89c4-823943192f50}</Project>
+      <Name>KinoVea.Force.GSPLink.SwingMetricsClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kinovea.Force\Kinovea.Force.csproj">
       <Project>{3e902fa3-1f36-48dc-9551-5d7c4ede38b6}</Project>
       <Name>Kinovea.Force</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kinovea.Services\Kinovea.Services.csproj">
+      <Project>{8aa92254-a016-4a84-925c-f5b07e02f8a8}</Project>
+      <Name>Kinovea.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

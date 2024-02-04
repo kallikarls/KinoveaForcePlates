@@ -28,22 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.forceChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             this.bleStatus = new Rop.Winforms.Icons.IconLabel();
             this.fluentUIBank1 = new Rop.Winforms.Icons.FluentUI.FluentUIBank();
             this.recordStatus = new Rop.Winforms.Icons.IconLabel();
+            this.forceChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             this.progressBar = new Kinovea.Force.UI.WinForms.Controls.VeriticalProgressBar();
             this.SuspendLayout();
-            // 
-            // forceChart
-            // 
-            this.forceChart.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.forceChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.forceChart.Location = new System.Drawing.Point(0, 0);
-            this.forceChart.Name = "forceChart";
-            this.forceChart.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
-            this.forceChart.Size = new System.Drawing.Size(513, 249);
-            this.forceChart.TabIndex = 0;
             // 
             // bleStatus
             // 
@@ -83,15 +73,30 @@
             this.recordStatus.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
             this.recordStatus.UseIconColor = false;
             // 
+            // forceChart
+            // 
+            this.forceChart.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.forceChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.forceChart.Location = new System.Drawing.Point(0, 0);
+            this.forceChart.Margin = new System.Windows.Forms.Padding(0);
+            this.forceChart.Name = "forceChart";
+            this.forceChart.Size = new System.Drawing.Size(513, 249);
+            this.forceChart.TabIndex = 0;
+            // 
             // progressBar
             // 
+            this.progressBar.CustomText = "";
             this.progressBar.Dock = System.Windows.Forms.DockStyle.Right;
             this.progressBar.Location = new System.Drawing.Point(513, 0);
             this.progressBar.Margin = new System.Windows.Forms.Padding(5);
             this.progressBar.MarqueeAnimationSpeed = 0;
             this.progressBar.Name = "progressBar";
+            this.progressBar.ProgressColor = System.Drawing.Color.LimeGreen;
             this.progressBar.Size = new System.Drawing.Size(40, 249);
             this.progressBar.TabIndex = 4;
+            this.progressBar.TextColor = System.Drawing.Color.Black;
+            this.progressBar.TextFont = new System.Drawing.Font("SansSerif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
+            this.progressBar.VisualMode = Kinovea.Force.UI.WinForms.Controls.ProgressBarDisplayMode.Value;
             // 
             // ForceGraphUserControl
             // 
@@ -101,6 +106,7 @@
             this.Controls.Add(this.recordStatus);
             this.Controls.Add(this.forceChart);
             this.Controls.Add(this.progressBar);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "ForceGraphUserControl";
             this.Size = new System.Drawing.Size(553, 249);
             this.ResumeLayout(false);

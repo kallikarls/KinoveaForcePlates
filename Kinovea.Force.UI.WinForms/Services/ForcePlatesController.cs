@@ -1,14 +1,10 @@
 ﻿using Kinovea.Force.BleForcePlates;
 using Kinovea.Force.UI.WinForms.Controls;
+using Kinovea.Services;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kinovea.Force.UI.WinForms.Services
 {
@@ -27,12 +23,21 @@ namespace Kinovea.Force.UI.WinForms.Services
         private string currentVideoFile;
         
         private object syncRoot = new object();
+        private FileSystemWatcher fileWatcher = new FileSystemWatcher();
 
         public ForceGraphPairUserControl ForceGraph { get; set; }
 
         public ForcePlatesController() 
         {
             
+            fileWatcher.NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite;
+            fileWatcher.Filter = "*.*";
+            fileWatcher.IncludeSubdirectories = false;
+            fileWatcher.EnableRaisingEvents = false;
+            fileWatcher.Deleted += VideoFileDeleted;
+            fileWatcher.Renamed += VideoFileRenamed;
+
+            NotificationCenter.CurrentDirectoryChanged += CurrentDirectoryChanged;
         }
 
         public void SetDevices(ForcePlateDeviceInfo leftPlateInfo, ForcePlateDeviceInfo rightPlateInfo)
@@ -149,8 +154,8 @@ namespace Kinovea.Force.UI.WinForms.Services
                     if (leftForce != null && rightForce != null)
                     {
                         double totalForce = leftForce.ADC + rightForce.ADC;
-                        leftForce.LoadPercentage = (leftForce.ADC / totalForce) * 100;
-                        rightForce.LoadPercentage = (rightForce.ADC / totalForce) * 100;
+                        leftForce.LoadPercentage = Math.Round((leftForce.ADC / totalForce) * 100, 0);
+                        rightForce.LoadPercentage = Math.Round((rightForce.ADC / totalForce) * 100, 0);
                         
                         ForceGraph?.ForceGraphLeft.ViewModel.AddMeasurement(leftForce);
                         ForceGraph?.ForceGraphRight.ViewModel.AddMeasurement(rightForce);
@@ -290,6 +295,68 @@ namespace Kinovea.Force.UI.WinForms.Services
                 // TODO: Log error
                 _ = ex;
             }
+        }
+
+        private void CurrentDirectoryChanged(object sender, CurrentDirectoryChangedEventArgs e)
+        {
+            fileWatcher.EnableRaisingEvents = false;
+
+            if (e.Path == null || e.Path.StartsWith("::"))
+                return;
+
+            try
+            {
+                fileWatcher.Path = e.Path;
+                fileWatcher.EnableRaisingEvents = true;
+            }
+            catch
+            {
+                // Log error
+
+            }
+        }
+
+        private void VideoFileRenamed(object sender, RenamedEventArgs e)
+        {
+            try
+            {
+                // Suppress events so that we don't get multiple event notifications
+                // during renaming of the force files.
+                fileWatcher.EnableRaisingEvents = false;
+            
+                string oldFileName = Path.GetFileNameWithoutExtension(e.OldFullPath);
+                if (oldFileName.EndsWith("-2"))
+                    return;
+
+                string oldForceFileLeftName = GetForceDataFileFromVideoFile(oldFileName, true);
+                string oldForceFullFileLeftName = Path.Combine(Path.GetDirectoryName(e.OldFullPath), oldForceFileLeftName);
+                if (File.Exists(oldForceFullFileLeftName))
+                {
+                    string newForceFileLeftName = GetForceDataFileFromVideoFile(e.FullPath, true);
+                    File.Move(oldForceFullFileLeftName, newForceFileLeftName);
+                }
+
+                string oldForceFileRightName = GetForceDataFileFromVideoFile(oldFileName, false);
+                string oldForceFullFileRightName = Path.Combine(Path.GetDirectoryName(e.OldFullPath), oldForceFileRightName);
+                if (File.Exists(oldForceFullFileRightName))
+                {
+                    string newForceFileRightName = GetForceDataFileFromVideoFile(e.FullPath, false);
+                    File.Move(oldForceFullFileRightName, newForceFileRightName);
+                }
+            }
+            catch 
+            { 
+                // TODO: Log error
+            }
+            finally
+            {
+                fileWatcher.EnableRaisingEvents = true;
+            }
+        }
+
+        private void VideoFileDeleted(object sender, FileSystemEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private string GetForceDataFileFromVideoFile(string videoFileName, bool left)

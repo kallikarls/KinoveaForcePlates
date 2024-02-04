@@ -192,6 +192,7 @@ namespace Kinovea.ScreenManager
 
             CameraTypeManager.CameraLoadAsked += CameraTypeManager_CameraLoadAsked;
             VideoTypeManager.VideoLoadAsked += VideoTypeManager_VideoLoadAsked;
+            
             dualPlayer.ExportImageAsked += (s, e) => ExportImages(ImageExportFormat.SideBySide);
             dualPlayer.ExportVideoAsked += (s, e) => ExportVideo(VideoExportFormat.SideBySide);
 
